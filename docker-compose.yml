@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+    environment:
+      # Environment variables for database connection
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: roundtable
+      DB_USERNAME: seu_usuario
+      DB_PASSWORD: sua_senha
+      SPRING_PROFILES_ACTIVE: dev  # Optional: use a specific Spring profile
+    depends_on:
+      - db  # Ensure the database service is started first
+    ports:
+      - "8080:8080"
+    networks:
+      - roundtable-network
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: seu_usuario
+      POSTGRES_PASSWORD: sua_senha
+      POSTGRES_DB: roundtable
+    ports:
+      - "5432:5432"
+    networks:
+      - roundtable-network
+
+networks:
+  roundtable-network:
+    driver: bridge

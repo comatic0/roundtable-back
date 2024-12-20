@@ -1,0 +1,49 @@
+# Esse fluxo de trabalho usa ações que não são certificadas pelo GitHub.
+# São fornecidas por terceiros e regidas por
+# termos de serviço, política de privacidade e suporte separados
+# online.
+
+# O GitHub recomenda fixar ações em um SHA de commit.
+# Para obter uma versão mais recente, você precisará atualizar o SHA.
+# Você também pode fazer referência a uma marca ou branch, mas a ação pode ser alterada sem aviso.
+
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: "us-east-1" # set this to your preferred AWS region, e.g. us-west-1
+  ECR_REPOSITORY: "devops-epic" # set this to your Amazon ECR repository name
+  REPO_NAME: ${{ github.repository }}
+  ECS_SERVICE: "arn:aws:ecs:us-east-1:183461571101:service/devops_epic_cluster/devops-epic-service" # set this to your Amazon ECS service name
+  ECS_CLUSTER: "arn:aws:ecs:us-east-1:183461571101:cluster/devops_epic_cluster" # set this to your Amazon ECS cluster name
+  ECS_TASK_DEFINITION:
+    .aws/task-definition.json # set this to the path to your Amazon ECS task definition
+    # file, e.g. .aws/task-definition.json
+  CONTAINER_NAME:
+    teste # set this to the name of the container in the
+    # containerDefinitions section of your task definition
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
